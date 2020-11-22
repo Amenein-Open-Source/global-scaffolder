@@ -1,0 +1,5 @@
+class => hello
+state1 => whatsup
+state2 => whatsup2
+filename => reactman
+fileformat => .jsx

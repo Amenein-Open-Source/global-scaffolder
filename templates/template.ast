@@ -1,0 +1,43 @@
+class <==class==> extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        <==state1==>: true,
+        <==state2==>: 2
+      };
+  
+      this.handleInputChange = this.handleInputChange.bind(this);
+    }
+  
+    handleInputChange(event) {
+      const target = event.target;
+      const value = target.type === 'checkbox' ? target.checked : target.value;
+      const name = target.name;
+      this.setState({
+        [name]: value    });
+    }
+  
+    render() {
+      return (
+        <form>
+          <label>
+            Is going:
+            <input
+              name="<==state1==>"            
+              type="checkbox"
+              checked={this.state.<==state1==>}
+              onChange={this.handleInputChange} />
+          </label>
+          <br />
+          <label>
+            Number of guests:
+            <input
+              name="<==state2==>"            
+              type="number"
+              value={this.state.<==state2==>}
+              onChange={this.handleInputChange} />
+          </label>
+        </form>
+      );
+    }
+  }
