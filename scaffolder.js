@@ -1,31 +1,6 @@
 const fs = require("fs");
 const readline = require("readline");
 
-async function processi(filename, template) {
-  var payload = {};
-  return new Promise((resolve, reject) => {
-    let stream = fs.createReadStream(process.cwd() + "/scaffolds/" + filename);
-
-    let rl = readline.createInterface({
-      input: stream,
-    });
-
-    rl.on("line", (line) => {
-      var stringCollection = line.split("=>");
-      console.log(line);
-      payload[stringCollection[0].trim()] = line.split("=>")[1].trim();
-    })
-      .on("close", () => {
-        scaffold(payload, template);
-        rl.close();
-        resolve("finished");
-      })
-      .on("error", (err) => {
-        reject(err);
-      });
-  });
-}
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -36,24 +11,39 @@ rl.on("close", function () {
   process.exit(0);
 });
 
-const scaffold = (payload, template) => {
-  fs.readFile(
-    process.cwd() + "/templates/" + template,
-    "utf8",
-    (err, data) => {
-      if (err) {
-        console.error(err);
-      }
-      var ata2 = data;
-      console.log(ata2);
-      console.log(payload);
-      for (const [key, value] of Object.entries(payload)) {
-          var reg1 = new RegExp("<==" + key + "==>", "g");
-          ata2 = ata2.replace(reg1, value);
-          var reg2 = new RegExp("[\.]+" + "<==" + key + "==>", "g");
-          ata2 = ata2.replace(reg2, value);
-      }
-      /*
+function processi(filepath, template, path) {
+  var payload = {};
+  let stream = fs.createReadStream(filepath);
+
+  let rl = readline.createInterface({
+    input: stream,
+  });
+
+  rl.on("line", (line) => {
+    var stringCollection = line.split("=>");
+    payload[stringCollection[0].trim()] = line.split("=>")[1].trim();
+  })
+    .on("close", () => {
+      scaffold(payload, template, path);
+    })
+    .on("error", (err) => {
+      reject(err);
+    });
+}
+
+const scaffold = (payload, template, path) => {
+  fs.readFile(process.cwd() + "/templates/" + template, "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+    }
+    var ata2 = data;
+    for (const [key, value] of Object.entries(payload)) {
+      var reg1 = new RegExp("<==" + key + "==>", "g");
+      ata2 = ata2.replace(reg1, value);
+      var reg2 = new RegExp("[.]+" + "<==" + key + "==>", "g");
+      ata2 = ata2.replace(reg2, value);
+    }
+    /*
       var ata2 = data.replace(/[\.]+<==class==>/g, "." + name);
       ata2 = ata2.replace(/<==class==>/g, name);
 
@@ -62,13 +52,31 @@ const scaffold = (payload, template) => {
       ata2 = ata2.replace(/[\.]+<==state2==>/g, "." + state2);
       ata2 = ata2.replace(/<==state2==>/g, state2);
       */
-      fs.appendFile(process.cwd() + "/target/" + payload["filename"] + payload["fileformat"], ata2, function (err) {
-        if (err) throw err;
-        console.log("Saved!");
-        rl.close();
-      });
+    if (!fs.existsSync(path.replace("scaffolds", "result"))) {
+      fs.mkdirSync(
+        path.replace("scaffolds", "result"),
+        { recursive: true },
+        (err) => {
+          if (err) {
+            return console.error(err);
+          }
+        }
+      );
     }
-  );
+    fs.appendFile(
+      path.replace("scaffolds", "result") +
+        "/" +
+        payload["filename"] +
+        payload["fileformat"],
+      ata2,
+      function (err2) {
+        if (err2) throw err2;
+        console.log("Saved!");
+      }
+    );
+    /*
+     */
+  });
 };
 
 module.exports.processi = processi;

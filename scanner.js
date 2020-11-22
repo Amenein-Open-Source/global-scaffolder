@@ -1,22 +1,29 @@
 var fs = require("fs");
-var scaffolds = fs.readdirSync(process.cwd() + "/scaffolds/");
-var templates = fs.readdirSync(process.cwd() + "/templates/");
 const scaffolder = require("./scaffolder");
+const globescanner = require("./globescanner");
+var templates = fs.readdirSync(process.cwd() + "/templates/");
 
-(async function () {
-    templates.forEach(async (file) => {
-        if (file.includes("ast")) {
-            var values = file.replace('.ast', '')
-            scaffolds.forEach(async (file2) =>{
-                if(file2.includes(".asv") && file2.includes(values)){
-                    try {
-                        const result = await scaffolder.processi(file2, file);
-                        console.log(result);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-            })
+(function () {
+  var scaffolds = globescanner.getAllFiles("./scaffolds");
+  scaffolds = scaffolds.reverse();
+  templates = templates.reverse();
+  templates.forEach((file) => {
+    if (file.includes("ast")) {
+      var values = file.replace(".ast", "");
+      scaffolds.forEach((file2) => {
+        if (
+          file2.filename.includes(".asv") &&
+          file2.filename.includes(values)
+        ) {
+          console.log(file2);
+          console.log(file);
+          try {
+            scaffolder.processi(file2.filename, file, file2.path);
+          } catch (e) {
+            console.error(e);
+          }
         }
-    });
+      });
+    }
+  });
 })();
